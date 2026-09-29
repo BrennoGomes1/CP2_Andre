@@ -144,7 +144,19 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 **Análise:**
 
 - **Melhor modelo:** PREENCHER. No notebook, o Random Forest também foi o melhor (F1 macro 0,975), seguido do kNN (0,964).
-- **Classes confundidas (Confusion Matrix):** PREENCHER com os números. As confusões esperadas são entre **Solar e Hidráulica**, porque usinas solares e pequenas hidrelétricas (CGH/PCH) têm potências parecidas, e entre **Solar e Eólica** em pontos próximos do Nordeste.
+- **Classes confundidas (Confusion Matrix):** a matriz abaixo (modelo: PREENCHER) cobre as 3.876 linhas e acerta 3.764 delas, ou seja, **97,1%**.
+
+![Confusion Matrix — ANEEL](orange/orange_confusion_aneel.png)
+
+| Real \ Previsto | Eólica | Hidráulica | Solar | Total | Acerto da classe |
+|---|---|---|---|---|---|
+| Eólica | **1175** | 14 | 11 | 1200 | 97,9% |
+| Hidráulica | 8 | **1451** | 17 | 1476 | 98,3% |
+| Solar | 33 | 29 | **1138** | 1200 | 94,8% |
+
+  - **Solar é a classe mais difícil:** 62 usinas solares foram classificadas errado, 33 como Eólica e 29 como Hidráulica. As solares estão espalhadas pelo país e têm potências de todos os tamanhos, então se sobrepõem às eólicas no Nordeste e às pequenas hidrelétricas (CGH/PCH) no Sul, Sudeste e Centro-Oeste.
+  - **Hidráulica é a mais bem reconhecida** (98,3%). A maior parte dos seus erros vai para Solar (17), e quase nenhum para Eólica (8), porque hidrelétricas e eólicas ficam em regiões bem diferentes.
+  - **Eólica** erra pouco (25 casos) e se divide entre Hidráulica (14) e Solar (11).
 - **Limitação:** potência e localização só descrevem **onde** e **de que tamanho** é o empreendimento. Faltam as variáveis físicas que definem a fonte, como rios e desnível, vento, irradiação e relevo. Além disso, as coordenadas são aproximadas e a potência outorgada não é energia gerada.
 - A quantidade de exemplos por classe vem do limite da consulta à API, então **não representa a participação das fontes na matriz energética brasileira**.
 
