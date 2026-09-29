@@ -1,0 +1,4 @@
+﻿Modelo,MAE (W/m²),MSE ((W/m²)²),RMSE (W/m²),R²
+Random Forest Regressor,67.1898,7419.5985,86.1371,0.8419
+KNN Regressor (k=10),72.1766,8222.9276,90.6804,0.8247
+Regressão Linear,145.2049,30034.2011,173.3038,0.3598
