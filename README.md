@@ -133,18 +133,21 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 
 **Algoritmos** (ligados ao Test and Score como *Learner*): **kNN**, **Tree** (árvore de decisão) e **Random Forest**.
 
-**Procedimento de avaliação:** PREENCHER (a mesma opção de Test and Score para os três modelos, ex.: Random Sampling estratificado, 80% treino, 10 repetições, ou Cross validation com 10 folds estratificados)
+**Procedimento de avaliação:** **Cross validation**, com a mesma configuração para os três modelos. Cada linha é testada uma vez, por isso a Confusion Matrix soma as 3.876 linhas. As métricas são a média das três classes (*Average over classes*).
 
 | Modelo | CA | Precision | Recall | F1 |
 |---|---|---|---|---|
-| kNN | | | | |
-| Tree | | | | |
-| Random Forest | | | | |
+| **Random Forest** | **0,971** | **0,971** | **0,971** | **0,971** |
+| Tree | 0,956 | 0,956 | 0,956 | 0,956 |
+| kNN | 0,875 | 0,877 | 0,875 | 0,876 |
+
+![Test & Score — classificação (ANEEL)](orange/orange_testscore_aneel.png)
 
 **Análise:**
 
-- **Melhor modelo:** PREENCHER. No notebook, o Random Forest também foi o melhor (F1 macro 0,975), seguido do kNN (0,964).
-- **Classes confundidas (Confusion Matrix):** a matriz abaixo (modelo: PREENCHER) cobre as 3.876 linhas e acerta 3.764 delas, ou seja, **97,1%**.
+- **Melhor modelo:** **Random Forest**, com CA e F1 de 0,971. Ele acerta 97 de cada 100 usinas. A **Tree** ficou logo atrás (0,956). Como o Random Forest combina centenas de árvores, erra menos que uma árvore sozinha.
+- **kNN** ficou bem atrás (0,875), bem abaixo dos 0,965 do notebook. A diferença provável é a escala: no notebook, o KNN recebeu `log(1 + potência)` e dados padronizados. Aqui, a potência (de poucos kW a milhares de MW) domina a distância, e latitude e longitude quase não pesam na escolha dos vizinhos. Modelos de árvore não sofrem com isso.
+- **Classes confundidas (Confusion Matrix):** a matriz abaixo, do **Random Forest**, cobre as 3.876 linhas e acerta 3.764 delas, ou seja, **97,1%**.
 
 ![Confusion Matrix — ANEEL](orange/orange_confusion_aneel.png)
 
