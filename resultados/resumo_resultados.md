@@ -1,6 +1,6 @@
 ## Resultados obtidos (gerado pelo notebook)
 
-### Tarefa 1 — Classificação (teste estratificado 20%, semente 42, métricas com média macro)
+### Tarefa 1: Classificação (teste estratificado 20%, semente 42, métricas com média macro)
 
 Linhas usadas: 3876 | treino: 3100 | teste: 776
 
@@ -12,7 +12,7 @@ Linhas usadas: 3876 | treino: 3100 | teste: 776
 
 **Melhor modelo (F1 macro):** Random Forest.
 
-### Tarefa 2 — Regressão (treino: primeiras 80% das horas; teste: últimas 20%)
+### Tarefa 2: Regressão (treino: primeiras 80% das horas; teste: últimas 20%)
 
 Horas usadas: 1001 | treino: 800 | teste: 201
 

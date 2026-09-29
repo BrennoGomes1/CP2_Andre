@@ -1,6 +1,6 @@
-# Checkpoint 02 — APIs, energias renováveis e aprendizado de máquina
+# Checkpoint 02: APIs, energias renováveis e aprendizado de máquina
 
-**Turma 1CCPX — FIAP**
+**Turma 1CCPX, FIAP**
 
 | Integrante | RM |
 |---|---|
@@ -20,8 +20,8 @@ Consultar duas APIs públicas de dados sobre energia e clima, gerar dois conjunt
 
 | Tarefa | Fonte | Período / recorte | Arquivo |
 |---|---|---|---|
-| Classificação | [ANEEL — SIGA](https://dadosabertos.aneel.gov.br/dataset/siga-sistema-de-informacoes-de-geracao-da-aneel) (API CKAN, sem token) | Cadastro consultado na execução; até 1.200 registros por sigla (UFV, EOL, UHE, PCH, CGH) | `aneel_classificacao_orange.csv` |
-| Regressão | [Open-Meteo — histórico](https://open-meteo.com/en/docs/historical-weather-api) (sem token) | 01/04/2025 a 30/06/2025, horas locais das 7h às 17h, fuso `America/Recife`, coordenadas −9,39 / −40,50 | `meteo_regressao_orange.csv` |
+| Classificação | [ANEEL (SIGA)](https://dadosabertos.aneel.gov.br/dataset/siga-sistema-de-informacoes-de-geracao-da-aneel) (API CKAN, sem token) | Cadastro consultado na execução; até 1.200 registros por sigla (UFV, EOL, UHE, PCH, CGH) | `aneel_classificacao_orange.csv` |
+| Regressão | [Open-Meteo (histórico)](https://open-meteo.com/en/docs/historical-weather-api) (sem token) | 01/04/2025 a 30/06/2025, horas locais das 7h às 17h, fuso `America/Recife`, coordenadas −9,39 / −40,50 | `meteo_regressao_orange.csv` |
 
 - **Classificação:** entradas `potencia_kw`, `latitude`, `longitude`; alvo `fonte` (UFV → Solar, EOL → Eólica, UHE/PCH/CGH → Hidráulica). O cadastro inclui empreendimentos em fases diferentes e a quantidade por classe depende do limite da consulta, portanto **não representa a matriz energética brasileira**.
 - **Regressão:** entradas `temperatura_c`, `umidade_pct`, `nuvens_pct`, `vento_kmh`, `hora`; alvo `radiacao_w_m2`; `data_hora` serve apenas para ordenar. Os valores são estimativas de modelos/reanálise, não medições de um painel.
@@ -54,14 +54,14 @@ No Jupyter, use **Run All**. O notebook consulta as duas APIs (é preciso intern
 
 ## Metodologia
 
-### Tarefa 1 — Classificação
+### Tarefa 1: Classificação
 
 - Divisão **estratificada 80% treino / 20% teste**, `random_state=42`, igual para os três modelos.
 - Modelos: **Regressão Logística**, **KNN (k=7)** e **Random Forest (300 árvores)**.
 - Pré-processamento (dentro de `Pipeline`, ajustado só no treino): `log(1 + potência)` e padronização para Regressão Logística e KNN; o Random Forest usa os dados originais.
 - Métricas: Accuracy, Precision, Recall e F1 com **média `macro`** (mesmo peso para cada classe) e matriz de confusão. O F1 `weighted` aparece como referência.
 
-### Tarefa 2 — Regressão
+### Tarefa 2: Regressão
 
 - Divisão **temporal**: primeiras 80% das horas para treino e últimas 20% para teste, sem embaralhar.
 - Modelos: **Regressão Linear**, **KNN Regressor (k=10)** e **Random Forest Regressor (300 árvores)**.
@@ -71,7 +71,7 @@ No Jupyter, use **Run All**. O notebook consulta as duas APIs (é preciso intern
 <!-- RESULTADOS_INICIO -->
 ## Resultados obtidos (gerado pelo notebook)
 
-### Tarefa 1 — Classificação (teste estratificado 20%, semente 42, métricas com média macro)
+### Tarefa 1: Classificação (teste estratificado 20%, semente 42, métricas com média macro)
 
 Linhas usadas: 3876 | treino: 3100 | teste: 776
 
@@ -83,7 +83,7 @@ Linhas usadas: 3876 | treino: 3100 | teste: 776
 
 **Melhor modelo (F1 macro):** Random Forest.
 
-### Tarefa 2 — Regressão (treino: primeiras 80% das horas; teste: últimas 20%)
+### Tarefa 2: Regressão (treino: primeiras 80% das horas; teste: últimas 20%)
 
 Horas usadas: 1001 | treino: 800 | teste: 201
 
@@ -103,26 +103,26 @@ Horas usadas: 1001 | treino: 800 | teste: 201
 
 ## Conclusões
 
-### Tarefa 1 — Classificação
+### Tarefa 1: Classificação
 
 - Potência e localização permitem separar as fontes razoavelmente bem, porque cada uma tem uma geografia típica: eólicas no Nordeste e no litoral Sul, hidráulicas no Sul, Sudeste e Centro-Oeste, e solares espalhadas, com forte presença no Nordeste e em Minas Gerais.
 - Os modelos não lineares (Random Forest e KNN) tendem a superar a Regressão Logística, que só traça fronteiras lineares entre as classes.
 - As confusões aparecem onde as classes se sobrepõem: solares e pequenas hidrelétricas (CGH/PCH) com potências parecidas, e solares e eólicas próximas no Nordeste.
 - **Limitações:** coordenadas aproximadas, potência outorgada não é energia gerada, faltam variáveis físicas (rios e desnível, vento, irradiação, relevo) e a amostra tem proporções artificiais entre as classes. O modelo não é adequado para uma aplicação real sem esses dados.
 
-### Tarefa 2 — Regressão
+### Tarefa 2: Regressão
 
 - A **hora do dia** é a entrada mais importante: ela define a posição do Sol e, portanto, a radiação máxima possível. A relação tem forma de sino (sobe de manhã e desce à tarde), algo que a Regressão Linear não representa bem.
 - A **cobertura de nuvens** explica quanto dessa radiação chega ao solo; os modelos não lineares aprendem a interação entre hora e nuvens e erram menos.
 - **Radiação não é geração elétrica:** a radiação é potência por área (W/m²) sobre uma superfície horizontal; a energia gerada (kWh) depende da área e eficiência dos módulos, inclinação e orientação, temperatura das células, sombreamento, sujeira e perdas no inversor e nos cabos. Além disso, os dados são estimativas de reanálise para um ponto aproximado, não medições de um sistema real.
 
-## Atividade complementar — Orange Data Mining
+## Atividade complementar: Orange Data Mining
 
 As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook, com **três algoritmos em cada uma** comparados sob a mesma configuração de Test & Score. O fluxo base do professor está em `orange/Fluxos_para_Classificacao_e_Regressao.ows`.
 
 ![Fluxos de classificação (ANEEL) e regressão (Open-Meteo) no Orange](orange/orange_fluxos.png)
 
-### 1. Classificação — ANEEL
+### 1. Classificação: ANEEL
 
 **Fluxo:** **File** (`aneel_classificacao_orange.csv`) → **Select Columns** → **Test and Score** → **Confusion Matrix**
 
@@ -141,7 +141,7 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 | Tree | 0,956 | 0,956 | 0,956 | 0,956 |
 | kNN | 0,875 | 0,877 | 0,875 | 0,876 |
 
-![Test & Score — classificação (ANEEL)](orange/orange_testscore_aneel.png)
+![Test & Score: classificação (ANEEL)](orange/orange_testscore_aneel.png)
 
 **Análise:**
 
@@ -149,7 +149,7 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 - **kNN** ficou bem atrás (0,875), bem abaixo dos 0,965 do notebook. A diferença provável é a escala: no notebook, o KNN recebeu `log(1 + potência)` e dados padronizados. Aqui, a potência (de poucos kW a milhares de MW) domina a distância, e latitude e longitude quase não pesam na escolha dos vizinhos. Modelos de árvore não sofrem com isso.
 - **Classes confundidas (Confusion Matrix):** a matriz abaixo, do **Random Forest**, cobre as 3.876 linhas e acerta 3.764 delas, ou seja, **97,1%**.
 
-![Confusion Matrix — ANEEL](orange/orange_confusion_aneel.png)
+![Confusion Matrix: ANEEL](orange/orange_confusion_aneel.png)
 
 | Real \ Previsto | Eólica | Hidráulica | Solar | Total | Acerto da classe |
 |---|---|---|---|---|---|
@@ -163,7 +163,7 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 - **Limitação:** potência e localização só descrevem **onde** e **de que tamanho** é o empreendimento. Faltam as variáveis físicas que definem a fonte, como rios e desnível, vento, irradiação e relevo. Além disso, as coordenadas são aproximadas e a potência outorgada não é energia gerada.
 - A quantidade de exemplos por classe vem do limite da consulta à API, então **não representa a participação das fontes na matriz energética brasileira**.
 
-### 2. Regressão — Open-Meteo
+### 2. Regressão: Open-Meteo
 
 **Fluxo:** **File (1)** (`meteo_regressao_orange.csv`) → **Select Columns (1)** → **Test and Score (1)** → **Predictions**
 
@@ -187,7 +187,7 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 
 MAE e RMSE em W/m², MSE em (W/m²)². Os valores da Linear Regression aparecem cortados na tela do Orange, por isso estão aproximados.
 
-![Test & Score — regressão (Open-Meteo)](orange/orange_testscore_meteo.png)
+![Test & Score: regressão (Open-Meteo)](orange/orange_testscore_meteo.png)
 
 Se o Orange mostrar apenas RMSE, MSE = RMSE².
 
@@ -198,7 +198,7 @@ Se o Orange mostrar apenas RMSE, MSE = RMSE².
 - **Comparação com o notebook:** a ordem é a mesma (modelos de árvores muito à frente da regressão linear), mas os valores do Orange são mais altos. No notebook, o Random Forest teve R² = 0,84 na divisão temporal, contra 0,928 aqui. A diferença vem da validação cruzada aleatória, que é mais otimista para dados no tempo, e do Gradient Boosting, que não foi usado no notebook.
 - **Erros no Predictions:** o print abaixo mostra as primeiras horas da manhã (7h), quando a radiação real é baixa, entre 13 e 98 W/m². O **Random Forest** e o **Gradient Boosting** ficam próximos disso, com previsões entre cerca de 19 e 115 W/m². A **Linear Regression** erra muito: prevê até **250 W/m²** e chega a dar valores **negativos** (−56,6 W/m²), o que é fisicamente impossível. Isso mostra que uma reta não acompanha a curva da radiação ao longo do dia.
 
-![Predictions — Open-Meteo (horas das 7h)](orange/orange_predictions_meteo.png)
+![Predictions: Open-Meteo (horas das 7h)](orange/orange_predictions_meteo.png)
 
 - **Papel da hora:** a hora define a posição do Sol e, portanto, a radiação máxima possível. A relação tem forma de sino: sobe de manhã, atinge o pico perto do meio-dia e desce à tarde. A Regressão Linear só representa relações em linha reta e não captura essa curva. Random Forest e Gradient Boosting capturam, e também aprendem a interação entre hora e cobertura de nuvens.
 - **Radiação não é geração elétrica:** radiação é potência por área (W/m²) chegando a uma superfície horizontal. A energia gerada (kWh) depende também da área e da eficiência dos módulos, da inclinação e orientação, da temperatura das células, de sombreamento e sujeira, e das perdas no inversor e nos cabos. Além disso, os dados da Open-Meteo são estimativas de reanálise para um ponto, não medições de uma usina.
