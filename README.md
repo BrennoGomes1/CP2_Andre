@@ -118,23 +118,22 @@ Horas usadas: 1001 | treino: 800 | teste: 201
 
 ## Atividade complementar — Orange Data Mining
 
-Os fluxos foram montados no Orange usando os CSVs gerados pelo notebook, com três algoritmos em cada tarefa. O fluxo base do professor está em `orange/Fluxos_para_Classificacao_e_Regressao.ows`.
+As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook, com **três algoritmos em cada uma** comparados sob a mesma configuração de Test & Score. O fluxo base do professor está em `orange/Fluxos_para_Classificacao_e_Regressao.ows`.
 
 ![Fluxos de classificação (ANEEL) e regressão (Open-Meteo) no Orange](orange/orange_fluxos.png)
 
-### Classificação — ANEEL
+### 1. Classificação — ANEEL
 
-**File** (`aneel_classificacao_orange.csv`) → **Select Columns** (features: `potencia_kw`, `latitude`, `longitude`; target: `fonte`) → **Test and Score** → **Confusion Matrix**.
+**Fluxo:** **File** (`aneel_classificacao_orange.csv`) → **Select Columns** → **Test and Score** → **Confusion Matrix**
 
-Algoritmos conectados ao Test and Score como *Learner*:
+| Papel | Atributos |
+|---|---|
+| Features | `potencia_kw` (potência outorgada, kW), `latitude`, `longitude` (graus decimais) |
+| Target | `fonte` (Solar, Eólica, Hidráulica) |
 
-- **kNN**
-- **Tree** (árvore de decisão)
-- **Random Forest**
+**Algoritmos** (ligados ao Test and Score como *Learner*): **kNN**, **Tree** (árvore de decisão) e **Random Forest**.
 
-O **Test and Score** envia os *Evaluation Results* para a **Confusion Matrix**, que mostra quais fontes (Solar, Eólica, Hidráulica) cada modelo confunde.
-
-**Procedimento de avaliação:** PREENCHER (ex.: Random Sampling estratificado, 80% treino, 10 repetições)
+**Procedimento de avaliação:** PREENCHER (a mesma opção de Test and Score para os três modelos, ex.: Random Sampling estratificado, 80% treino, 10 repetições, ou Cross validation com 10 folds estratificados)
 
 | Modelo | CA | Precision | Recall | F1 |
 |---|---|---|---|---|
@@ -142,21 +141,26 @@ O **Test and Score** envia os *Evaluation Results* para a **Confusion Matrix**, 
 | Tree | | | | |
 | Random Forest | | | | |
 
-**Análise:** PREENCHER (melhor modelo, classes mais confundidas na Confusion Matrix, comparação com o notebook)
+**Análise:**
 
-### Regressão — Open-Meteo
+- **Melhor modelo:** PREENCHER. No notebook, o Random Forest também foi o melhor (F1 macro 0,975), seguido do kNN (0,964).
+- **Classes confundidas (Confusion Matrix):** PREENCHER com os números. As confusões esperadas são entre **Solar e Hidráulica**, porque usinas solares e pequenas hidrelétricas (CGH/PCH) têm potências parecidas, e entre **Solar e Eólica** em pontos próximos do Nordeste.
+- **Limitação:** potência e localização só descrevem **onde** e **de que tamanho** é o empreendimento. Faltam as variáveis físicas que definem a fonte, como rios e desnível, vento, irradiação e relevo. Além disso, as coordenadas são aproximadas e a potência outorgada não é energia gerada.
+- A quantidade de exemplos por classe vem do limite da consulta à API, então **não representa a participação das fontes na matriz energética brasileira**.
 
-**File (1)** (CSV da Open-Meteo) → **Select Columns (1)** (features: `temperatura_c`, `umidade_pct`, `nuvens_pct`, `vento_kmh`, `hora`; target: `radiacao_w_m2`; meta: `data_hora`) → **Test and Score (1)** → **Predictions**.
+### 2. Regressão — Open-Meteo
 
-Algoritmos conectados ao Test and Score (1) como *Learner*:
+**Fluxo:** **File (1)** (`meteo_regressao_orange.csv`) → **Select Columns (1)** → **Test and Score (1)** → **Predictions**
 
-- **Linear Regression**
-- **Random Forest (1)**
-- **Gradient Boosting**
+| Papel | Atributos |
+|---|---|
+| Features | `temperatura_c` (°C), `umidade_pct` (%), `nuvens_pct` (%), `vento_kmh` (km/h), `hora` (hora local) |
+| Target | `radiacao_w_m2` (radiação solar global horizontal média da hora anterior, W/m²) |
+| Meta | `data_hora` (identifica e ordena as observações) |
 
-O **Test and Score (1)** envia as previsões (*Predictions → Data*) para o widget **Predictions**, onde é possível comparar a radiação real com a prevista por cada modelo.
+**Algoritmos** (ligados ao Test and Score (1) como *Learner*): **Linear Regression**, **Random Forest** e **Gradient Boosting**. O Test and Score (1) envia as previsões para o widget **Predictions**, usado para examinar os erros de cada modelo.
 
-**Procedimento de avaliação:** PREENCHER
+**Procedimento de avaliação:** PREENCHER (a mesma opção para os três modelos). Como o fluxo tem um único File, a avaliação no Orange não usa a divisão temporal do notebook. Se for **validação cruzada aleatória**, isso tem uma limitação: horas vizinhas, com clima quase igual, caem ao mesmo tempo no treino e no teste, e o resultado tende a sair **otimista** em relação à divisão temporal 80/20 do notebook. Por isso a comparação numérica com o notebook não é direta.
 
 | Modelo | MAE | MSE | RMSE | R² |
 |---|---|---|---|---|
@@ -166,4 +170,8 @@ O **Test and Score (1)** envia as previsões (*Predictions → Data*) para o wid
 
 Se o Orange mostrar apenas RMSE, MSE = RMSE².
 
-**Análise:** PREENCHER (melhor modelo, papel da hora, diferença entre radiação e geração elétrica)
+**Análise:**
+
+- **Melhor modelo:** PREENCHER. No notebook, o Random Forest obteve R² = 0,84 e a Regressão Linear, R² = 0,36.
+- **Papel da hora:** a hora define a posição do Sol e, portanto, a radiação máxima possível. A relação tem forma de sino: sobe de manhã, atinge o pico perto do meio-dia e desce à tarde. A Regressão Linear só representa relações em linha reta e não captura essa curva. Random Forest e Gradient Boosting capturam, e também aprendem a interação entre hora e cobertura de nuvens.
+- **Radiação não é geração elétrica:** radiação é potência por área (W/m²) chegando a uma superfície horizontal. A energia gerada (kWh) depende também da área e da eficiência dos módulos, da inclinação e orientação, da temperatura das células, de sombreamento e sujeira, e das perdas no inversor e nos cabos. Além disso, os dados da Open-Meteo são estimativas de reanálise para um ponto, não medições de uma usina.
