@@ -42,8 +42,8 @@ Consultar duas APIs públicas de dados sobre energia e clima, gerar dois conjunt
 ## Como executar
 
 ```bash
-git clone <link-deste-repositorio>
-cd <pasta-do-repositorio>
+git clone https://github.com/BrennoGomes1/CP2_Andre.git
+cd CP2_Andre
 python -m venv .venv
 # Windows: .venv\Scripts\activate    |    Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
