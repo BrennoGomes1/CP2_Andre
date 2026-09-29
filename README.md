@@ -118,41 +118,51 @@ Horas usadas: 1001 | treino: 800 | teste: 201
 
 ## Atividade complementar — Orange Data Mining
 
-Os fluxos usam os CSVs gerados pelo notebook (fluxo base do professor: `orange/Fluxos_para_Classificacao_e_Regressao.ows`, acrescido de um terceiro algoritmo em cada tarefa).
+Os fluxos foram montados no Orange usando os CSVs gerados pelo notebook, com três algoritmos em cada tarefa. O fluxo base do professor está em `orange/Fluxos_para_Classificacao_e_Regressao.ows`.
 
-### Classificação
+![Fluxos de classificação (ANEEL) e regressão (Open-Meteo) no Orange](orange/orange_fluxos.png)
 
-**File** (`aneel_classificacao_orange.csv`) → **Select Columns** (features: `potencia_kw`, `latitude`, `longitude`; target: `fonte`) → **Logistic Regression**, **kNN** e **Random Forest** → **Test & Score** → **Confusion Matrix**.
+### Classificação — ANEEL
 
-![Fluxo de classificação no Orange](orange/orange_classificacao_fluxo.png)
+**File** (`aneel_classificacao_orange.csv`) → **Select Columns** (features: `potencia_kw`, `latitude`, `longitude`; target: `fonte`) → **Test and Score** → **Confusion Matrix**.
 
-![Test & Score e Confusion Matrix — classificação](orange/orange_classificacao_resultados.png)
+Algoritmos conectados ao Test and Score como *Learner*:
+
+- **kNN**
+- **Tree** (árvore de decisão)
+- **Random Forest**
+
+O **Test and Score** envia os *Evaluation Results* para a **Confusion Matrix**, que mostra quais fontes (Solar, Eólica, Hidráulica) cada modelo confunde.
 
 **Procedimento de avaliação:** PREENCHER (ex.: Random Sampling estratificado, 80% treino, 10 repetições)
 
 | Modelo | CA | Precision | Recall | F1 |
 |---|---|---|---|---|
-| Logistic Regression | | | | |
 | kNN | | | | |
+| Tree | | | | |
 | Random Forest | | | | |
 
 **Análise:** PREENCHER (melhor modelo, classes mais confundidas na Confusion Matrix, comparação com o notebook)
 
-### Regressão
+### Regressão — Open-Meteo
 
-**File** (`meteo_treino_orange.csv`) → **Select Columns** (features: `temperatura_c`, `umidade_pct`, `nuvens_pct`, `vento_kmh`, `hora`; target: `radiacao_w_m2`; meta: `data_hora`) → **Linear Regression**, **kNN** e **Random Forest** → **Test & Score** com **Test on test data**, recebendo um segundo **File** (`meteo_teste_orange.csv`) com o mesmo Select Columns.
+**File (1)** (CSV da Open-Meteo) → **Select Columns (1)** (features: `temperatura_c`, `umidade_pct`, `nuvens_pct`, `vento_kmh`, `hora`; target: `radiacao_w_m2`; meta: `data_hora`) → **Test and Score (1)** → **Predictions**.
 
-![Fluxo de regressão no Orange](orange/orange_regressao_fluxo.png)
+Algoritmos conectados ao Test and Score (1) como *Learner*:
 
-![Test & Score — regressão](orange/orange_regressao_resultados.png)
+- **Linear Regression**
+- **Random Forest (1)**
+- **Gradient Boosting**
 
-**Procedimento de avaliação:** conjunto de teste separado (últimas 20% das horas), igual ao notebook.
+O **Test and Score (1)** envia as previsões (*Predictions → Data*) para o widget **Predictions**, onde é possível comparar a radiação real com a prevista por cada modelo.
+
+**Procedimento de avaliação:** PREENCHER
 
 | Modelo | MAE | MSE | RMSE | R² |
 |---|---|---|---|---|
 | Linear Regression | | | | |
-| kNN | | | | |
 | Random Forest | | | | |
+| Gradient Boosting | | | | |
 
 Se o Orange mostrar apenas RMSE, MSE = RMSE².
 
