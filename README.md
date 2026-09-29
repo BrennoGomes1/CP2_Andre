@@ -178,15 +178,21 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 
 | Modelo | MAE | MSE | RMSE | R² |
 |---|---|---|---|---|
-| Linear Regression | | | | |
-| Random Forest | | | | |
-| Gradient Boosting | | | | |
+| **Gradient Boosting** | **48,8** | **4.353,6** | **66,0** | **0,934** |
+| Random Forest | 49,4 | 4.734,1 | 68,8 | 0,928 |
+| Linear Regression | ≈ 119 | ≈ 22.881 | ≈ 151,3 | 0,652 |
+
+MAE e RMSE em W/m², MSE em (W/m²)². Os valores da Linear Regression aparecem cortados na tela do Orange, por isso estão aproximados.
+
+![Test & Score — regressão (Open-Meteo)](orange/orange_testscore_meteo.png)
 
 Se o Orange mostrar apenas RMSE, MSE = RMSE².
 
 **Análise:**
 
-- **Melhor modelo:** PREENCHER. No notebook, o Random Forest obteve R² = 0,84 e a Regressão Linear, R² = 0,36.
+- **Melhor modelo:** **Gradient Boosting**, com R² = 0,934 e MAE = 48,8 W/m². Ele explica 93% da variação da radiação e erra, em média, cerca de 49 W/m². O **Random Forest** ficou praticamente empatado (R² = 0,928, MAE = 49,4 W/m²).
+- **Linear Regression** ficou bem atrás: R² = 0,652, MAE ≈ 119 W/m² e MSE cerca de 5 vezes maior. O MSE pune erros grandes, e a reta erra muito no começo e no fim do dia.
+- **Comparação com o notebook:** a ordem é a mesma (modelos de árvores muito à frente da regressão linear), mas os valores do Orange são mais altos. No notebook, o Random Forest teve R² = 0,84 na divisão temporal, contra 0,928 aqui. A diferença vem da validação cruzada aleatória, que é mais otimista para dados no tempo, e do Gradient Boosting, que não foi usado no notebook.
 - **Erros no Predictions:** o print abaixo mostra as primeiras horas da manhã (7h), quando a radiação real é baixa, entre 13 e 98 W/m². O **Random Forest** e o **Gradient Boosting** ficam próximos disso, com previsões entre cerca de 19 e 115 W/m². A **Linear Regression** erra muito: prevê até **250 W/m²** e chega a dar valores **negativos** (−56,6 W/m²), o que é fisicamente impossível. Isso mostra que uma reta não acompanha a curva da radiação ao longo do dia.
 
 ![Predictions — Open-Meteo (horas das 7h)](orange/orange_predictions_meteo.png)
