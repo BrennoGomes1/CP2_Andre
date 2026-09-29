@@ -172,7 +172,9 @@ As duas tarefas foram refeitas no Orange a partir dos CSVs gerados pelo notebook
 
 **Algoritmos** (ligados ao Test and Score (1) como *Learner*): **Linear Regression**, **Random Forest** e **Gradient Boosting**. O Test and Score (1) envia as previsões para o widget **Predictions**, usado para examinar os erros de cada modelo.
 
-**Procedimento de avaliação:** PREENCHER (a mesma opção para os três modelos). Como o fluxo tem um único File, a avaliação no Orange não usa a divisão temporal do notebook. Se for **validação cruzada aleatória**, isso tem uma limitação: horas vizinhas, com clima quase igual, caem ao mesmo tempo no treino e no teste, e o resultado tende a sair **otimista** em relação à divisão temporal 80/20 do notebook. Por isso a comparação numérica com o notebook não é direta.
+**Procedimento de avaliação:** **Cross validation com 10 folds**, a mesma para os três modelos. A coluna *Fold* do widget Predictions confirma isso: cada linha aparece como teste em um dos folds de 1 a 10.
+
+**Limitação:** a validação cruzada embaralha as horas, e isso não reproduz a divisão temporal 80/20 do notebook. Horas vizinhas, com clima quase igual, caem ao mesmo tempo no treino e no teste, então o resultado tende a sair **otimista**. Por isso a comparação numérica com o notebook não é direta.
 
 | Modelo | MAE | MSE | RMSE | R² |
 |---|---|---|---|---|
@@ -185,5 +187,9 @@ Se o Orange mostrar apenas RMSE, MSE = RMSE².
 **Análise:**
 
 - **Melhor modelo:** PREENCHER. No notebook, o Random Forest obteve R² = 0,84 e a Regressão Linear, R² = 0,36.
+- **Erros no Predictions:** o print abaixo mostra as primeiras horas da manhã (7h), quando a radiação real é baixa, entre 13 e 98 W/m². O **Random Forest** e o **Gradient Boosting** ficam próximos disso, com previsões entre cerca de 19 e 115 W/m². A **Linear Regression** erra muito: prevê até **250 W/m²** e chega a dar valores **negativos** (−56,6 W/m²), o que é fisicamente impossível. Isso mostra que uma reta não acompanha a curva da radiação ao longo do dia.
+
+![Predictions — Open-Meteo (horas das 7h)](orange/orange_predictions_meteo.png)
+
 - **Papel da hora:** a hora define a posição do Sol e, portanto, a radiação máxima possível. A relação tem forma de sino: sobe de manhã, atinge o pico perto do meio-dia e desce à tarde. A Regressão Linear só representa relações em linha reta e não captura essa curva. Random Forest e Gradient Boosting capturam, e também aprendem a interação entre hora e cobertura de nuvens.
 - **Radiação não é geração elétrica:** radiação é potência por área (W/m²) chegando a uma superfície horizontal. A energia gerada (kWh) depende também da área e da eficiência dos módulos, da inclinação e orientação, da temperatura das células, de sombreamento e sujeira, e das perdas no inversor e nos cabos. Além disso, os dados da Open-Meteo são estimativas de reanálise para um ponto, não medições de uma usina.
